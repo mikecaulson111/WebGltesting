@@ -84,8 +84,6 @@ function main() {
 
   drawhere();
 
-  update();  
-
   // code above this line is initialization code.
   // code below this line is rendering code.
 
@@ -130,12 +128,14 @@ function main() {
      var count = 6;
      gl.drawArrays(primitiveType, offset, count);
 
+     update();
+
+     requestAnimationFrame(drawhere);
    } 
 
    async function update() {
       var i = 0;
-      while (true) {
-         if ( translations[1] + height < 500) {
+      if ( translations[1] + height < 500) {
             yvel += 0.1;
             translations[1] += yvel;
          } else {
@@ -149,18 +149,8 @@ function main() {
             translations[0] += xvel;
          } else {
             xvel *= -1;
-         }
-
-         //translations[1] += 0.95;
-
-         //console.log(translations[1]);
-
-         drawhere();
-
-        await new Promise(r => setTimeout(r, 20));
       }
    }
-  
 
   // console.log("MJKE");
 }
