@@ -29,7 +29,7 @@ function createProgram(gl, vertexShader, fragmentShader) {
 }
 
 function main() {
-  console.log("mjsdflasdf");
+  // console.log("mjsdflasdf");
   // Get A WebGL context
   var canvas = document.querySelector("#c");
   var gl = canvas.getContext("webgl");
@@ -60,21 +60,6 @@ function main() {
 
   var colorUniformLocation = gl.getUniformLocation(program, "u_color");
 
-  // var positions = [
-  //   0, 0,
-  //   0, 0.5,
-  //   0.7, 0,
-  // // ];
-  // var positions = [
-  //   10,20,
-  //   80,20,
-  //   10,30,
-  //   10,30,
-  //   80,20,
-  //   80,30,
-  // ];
-  // gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
-
   var translations = [0,0];
   var width = 100;
   var height = 50;
@@ -95,7 +80,7 @@ function main() {
      gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
 
      // Clear the canvas
-     gl.clearColor(0, 0, 0, 0);
+     gl.clearColor(0, 0, 0, 1);
      gl.clear(gl.COLOR_BUFFER_BIT);
 
      // Tell it to use our program (pair of shaders)
@@ -133,22 +118,22 @@ function main() {
      requestAnimationFrame(drawhere);
    } 
 
-   async function update() {
+   function update() {
       var i = 0;
       if ( translations[1] + height < 500) {
-            yvel += 0.1;
-            translations[1] += yvel;
-         } else {
-            yvel *= -1;
-            translations[1] = 500-height-1;
-         }
+        yvel += 0.1;
+        translations[1] += yvel;
+      } else {
+        yvel *= -1
+        translations[1] = 500-height-1;
+      }
 
-         if (translations[0] > 0 && xvel < 0) {
-            translations[0] += xvel;
-         } else if (translations[0] < 500 - width && xvel > 0) {
-            translations[0] += xvel;
-         } else {
-            xvel *= -1;
+      if (translations[0] > 0 && xvel < 0) {
+        translations[0] += xvel;
+      } else if (translations[0] < 500 - width && xvel > 0) {
+        translations[0] += xvel;
+      } else {
+        xvel *= -1;
       }
    }
 
