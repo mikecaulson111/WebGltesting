@@ -3,12 +3,14 @@
 
 var animationOn = true;
 var isLines = false;
-var translations = [0,0];
+var translations = [0, 0];
 var width = 100;
 var height = 50;
 var color = [Math.random(), Math.random(), Math.random(), 1];
 var yvel = 0;
 var xvel = 1.5;
+var num_below_num = 0;
+var onFloor = false;
 
 function changeState() {
   if (animationOn) {
@@ -25,6 +27,12 @@ function changeLines() {
   } else {
     isLines = true;
   }
+}
+
+function jump() {
+  yvel = -30;
+  onFloor = false;
+  num_below_num = 0;
 }
 
 function createShader(gl, type, source) {
@@ -86,7 +94,7 @@ function main() {
 
   var colorUniformLocation = gl.getUniformLocation(program, "u_color");
 
-  
+
 
   drawhere();
 
@@ -96,34 +104,34 @@ function main() {
   // webglUtils.resizeCanvasToDisplaySize(gl.canvas);
 
 
-   function drawhere() {
-     // Tell WebGL how to convert from clip space to pixels
-     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+  function drawhere() {
+    // Tell WebGL how to convert from clip space to pixels
+    gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
 
-     // Clear the canvas
-     gl.clearColor(0, 0, 0, 1);
-     gl.clear(gl.COLOR_BUFFER_BIT);
+    // Clear the canvas
+    gl.clearColor(0, 0, 0, 1);
+    gl.clear(gl.COLOR_BUFFER_BIT);
 
-     // Tell it to use our program (pair of shaders)
-     gl.useProgram(program);
+    // Tell it to use our program (pair of shaders)
+    gl.useProgram(program);
 
-     // Turn on the attribute
-     gl.enableVertexAttribArray(positionAttributeLocation);
+    // Turn on the attribute
+    gl.enableVertexAttribArray(positionAttributeLocation);
 
-     // Bind the position buffer.
-     gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+    // Bind the position buffer.
+    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
 
-     var resolutionUniformLocation = gl.getUniformLocation(program, "u_resolution");
+    var resolutionUniformLocation = gl.getUniformLocation(program, "u_resolution");
 
-     gl.uniform2f(resolutionUniformLocation, gl.canvas.width, gl.canvas.height);
+    gl.uniform2f(resolutionUniformLocation, gl.canvas.width, gl.canvas.height);
 
-     // Tell the attribute how to get data out of positionBuffer (ARRAY_BUFFER)
-     var size = 2;          // 2 components per iteration
-     var type = gl.FLOAT;   // the data is 32bit floats
-     var normalize = false; // don't normalize the data
-     var stride = 0;        // 0 = move forward size * sizeof(type) each iteration to get the next position
-     var offset = 0;        // start at the beginning of the buffer
-     gl.vertexAttribPointer(
+    // Tell the attribute how to get data out of positionBuffer (ARRAY_BUFFER)
+    var size = 2;          // 2 components per iteration
+    var type = gl.FLOAT;   // the data is 32bit floats
+    var normalize = false; // don't normalize the data
+    var stride = 0;        // 0 = move forward size * sizeof(type) each iteration to get the next position
+    var offset = 0;        // start at the beginning of the buffer
+    gl.vertexAttribPointer(
       positionAttributeLocation, size, type, normalize, stride, offset);
 
     if (!isLines) {
@@ -131,44 +139,66 @@ function main() {
     } else {
       setLinesRect(gl, translations[0], translations[1], width, height);
     }
-     gl.uniform4fv(colorUniformLocation, color);
+    gl.uniform4fv(colorUniformLocation, color);
 
-     // draw
+    // draw
     var primitiveType;
-     if (!isLines) {
+    if (!isLines) {
       primitiveType = gl.TRIANGLES;
-     } else {
+    } else {
       primitiveType = gl.LINES;
-     }
-     var offset = 0;
-     var count = (isLines ? 12 : 6);
-     gl.drawArrays(primitiveType, offset, count);
+    }
+    var offset = 0;
+    var count = (isLines ? 12 : 6);
+    gl.drawArrays(primitiveType, offset, count);
 
-     if (animationOn) {
+    if (animationOn) {
       update();
 
       requestAnimationFrame(drawhere);
-     }
-   } 
+    }
+  }
 
-   function update() {
-      var i = 0;
-      if ( translations[1] + height < 500) {
-        yvel += 0.1;
+  function update() {
+    var i = 0;
+    if (!onFloor) {
+      if (translations[1] + height < 501) {
+        yvel += 0.5;
+        yvel *= 0.97;
         translations[1] += yvel;
       } else {
         yvel *= -1
-        translations[1] = 500-height-1;
+        translations[1] = 500 - height;
       }
+    }
 
-      if (translations[0] > 0 && xvel < 0) {
-        translations[0] += xvel;
-      } else if (translations[0] < 500 - width && xvel > 0) {
-        translations[0] += xvel;
+    if (translations[0] > 0 && xvel < 0) {
+      translations[0] += xvel;
+    } else if (translations[0] < 500 - width && xvel > 0) {
+      translations[0] += xvel;
+    } else {
+      xvel *= -1;
+    }
+    // if (xvel > 0.001) {
+    //   xvel *= 0.97;
+    // }
+
+    if (!onFloor) {
+      if (Math.abs(yvel) < 2) {
+        num_below_num += 1;
       } else {
-        xvel *= -1;
+        num_below_num = 0;
       }
-   }
+    }
+
+    if (num_below_num > 10) {
+      yvel = 0;
+      translations[1] = 500 - height;
+      onFloor = true;
+    }
+
+    num_below_num %= 100;
+  }
 
   // console.log("MJKE");
 }
@@ -184,12 +214,12 @@ function setRectangle(gl, x, y, width, height) {
   var y2 = y + height;
 
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
-    x1,y1,
-    x2,y1,
-    x1,y2,
-    x1,y2,
-    x2,y1,
-    x2,y2
+    x1, y1,
+    x2, y1,
+    x1, y2,
+    x1, y2,
+    x2, y1,
+    x2, y2
   ]), gl.STATIC_DRAW);
 }
 
@@ -198,18 +228,18 @@ function setLinesRect(gl, x, y, width, height) {
   var y2 = y + height;
 
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
-    x,y,
-    x2,y,
-    x2,y,
-    x2,y2,
-    x2,y2,
-    x,y,
-    x,y,
-    x,y2,
-    x,y2,
-    x2,y2,
-    x2,y2,
-    x,y,
+    x, y,
+    x2, y,
+    x2, y,
+    x2, y2,
+    x2, y2,
+    x, y,
+    x, y,
+    x, y2,
+    x, y2,
+    x2, y2,
+    x2, y2,
+    x, y,
   ]), gl.STATIC_DRAW);
 }
 
