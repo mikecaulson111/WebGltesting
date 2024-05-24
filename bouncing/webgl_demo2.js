@@ -2,6 +2,7 @@
 "use strict";
 
 var animationOn = true;
+var isLines = false;
 var translations = [0,0];
 var width = 100;
 var height = 50;
@@ -15,6 +16,14 @@ function changeState() {
   } else {
     animationOn = true;
     main();
+  }
+}
+
+function changeLines() {
+  if (isLines) {
+    isLines = false;
+  } else {
+    isLines = true;
   }
 }
 
@@ -116,13 +125,23 @@ function main() {
      var offset = 0;        // start at the beginning of the buffer
      gl.vertexAttribPointer(
       positionAttributeLocation, size, type, normalize, stride, offset);
-     setRectangle(gl, translations[0], translations[1], width, height);
+
+    if (!isLines) {
+      setRectangle(gl, translations[0], translations[1], width, height);
+    } else {
+      setLinesRect(gl, translations[0], translations[1], width, height);
+    }
      gl.uniform4fv(colorUniformLocation, color);
 
      // draw
-     var primitiveType = gl.TRIANGLES;
+    var primitiveType;
+     if (!isLines) {
+      primitiveType = gl.TRIANGLES;
+     } else {
+      primitiveType = gl.LINES;
+     }
      var offset = 0;
-     var count = 6;
+     var count = (isLines ? 12 : 6);
      gl.drawArrays(primitiveType, offset, count);
 
      if (animationOn) {
@@ -171,6 +190,26 @@ function setRectangle(gl, x, y, width, height) {
     x1,y2,
     x2,y1,
     x2,y2
+  ]), gl.STATIC_DRAW);
+}
+
+function setLinesRect(gl, x, y, width, height) {
+  var x2 = x + width;
+  var y2 = y + height;
+
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+    x,y,
+    x2,y,
+    x2,y,
+    x2,y2,
+    x2,y2,
+    x,y,
+    x,y,
+    x,y2,
+    x,y2,
+    x2,y2,
+    x2,y2,
+    x,y,
   ]), gl.STATIC_DRAW);
 }
 
