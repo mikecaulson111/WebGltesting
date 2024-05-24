@@ -1,6 +1,23 @@
 /* eslint no-console:0 consistent-return:0 */
 "use strict";
 
+var animationOn = true;
+var translations = [0,0];
+var width = 100;
+var height = 50;
+var color = [Math.random(), Math.random(), Math.random(), 1];
+var yvel = 0;
+var xvel = 1.5;
+
+function changeState() {
+  if (animationOn) {
+    animationOn = false;
+  } else {
+    animationOn = true;
+    main();
+  }
+}
+
 function createShader(gl, type, source) {
   var shader = gl.createShader(type);
   gl.shaderSource(shader, source);
@@ -60,12 +77,7 @@ function main() {
 
   var colorUniformLocation = gl.getUniformLocation(program, "u_color");
 
-  var translations = [0,0];
-  var width = 100;
-  var height = 50;
-  var color = [Math.random(), Math.random(), Math.random(), 1];
-  var yvel = 0;
-  var xvel = 1.5;
+  
 
   drawhere();
 
@@ -113,9 +125,11 @@ function main() {
      var count = 6;
      gl.drawArrays(primitiveType, offset, count);
 
-     update();
+     if (animationOn) {
+      update();
 
-     requestAnimationFrame(drawhere);
+      requestAnimationFrame(drawhere);
+     }
    } 
 
    function update() {
