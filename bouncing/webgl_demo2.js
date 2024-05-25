@@ -11,6 +11,7 @@ var yvel = 0;
 var xvel = 1.5;
 var num_below_num = 0;
 var onFloor = false;
+var hello;
 
 function changeState() {
   if (animationOn) {
@@ -164,7 +165,7 @@ function main() {
     if (!onFloor) {
       if (translations[1] + height < 501) {
         yvel += 0.5;
-        yvel *= 0.97;
+        yvel *= 0.996;
         translations[1] += yvel;
       } else {
         yvel *= -1
@@ -184,14 +185,14 @@ function main() {
     // }
 
     if (!onFloor) {
-      if (Math.abs(yvel) < 2) {
+      if (Math.abs(yvel) < 3.5) {
         num_below_num += 1;
       } else {
         num_below_num = 0;
       }
     }
 
-    if (num_below_num > 10) {
+    if (num_below_num > 50) {
       yvel = 0;
       translations[1] = 500 - height;
       onFloor = true;
