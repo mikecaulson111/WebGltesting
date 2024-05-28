@@ -109,6 +109,10 @@ function main() {
       case 'D':
         xposVel = false;
         break;
+      case 'l':
+      case 'L':
+        isLines = !isLines;
+        break;
     }
   }
 
@@ -228,11 +232,11 @@ function main() {
     } else {
       xvel *= -1;
     }
-    // if (Math.abs(xvel) > 0.001) {
-    //   xvel *= 0.85;
-    // } else {
-    //   xvel = 0;
-    // }
+    if (Math.abs(xvel) > 0.001) {
+      xvel *= 0.85;
+    } else {
+      xvel = 0;
+    }
 
     if (!onFloor) {
       if (Math.abs(yvel) < 3.5) {
