@@ -149,7 +149,7 @@ function main() {
     [Math.random(), Math.random(), Math.random(), 1],
   ];
   var number_arrays = 2;
-  var collide = false;
+  var collide = [false, false];
 
 
 
@@ -249,20 +249,13 @@ function main() {
       var ty1 = square_arrays[j*4 + 3] / 2 + height / 2;
 
       if (tx < tx1 && ty < ty1 && prevy + height < square_arrays[j*4+1]) {
-        console.log("COLID__ ", j);
-        nextLowest = square_arrays[j*4+1] - 1;
-        collide = true;
+        nextLowest = square_arrays[j*4+1];
+        collide[j] = true;
       } else {
-        // if (collide && tx > tx1) {
-        //   onFloor = false;
-        //   nextLowest = 500;
-        //   collide = false;
-        //   // console.error("NO LONGER COLLIDING");
-        // }
-        if (collide && (translations[0] + width < square_arrays[j*4] || translations[0] > square_arrays[j*4] + square_arrays[j*4 + 2] )) {
+        if (collide[j] && (tx1 <= tx)) {
           onFloor = false;
           nextLowest = 500;
-          collide = false;
+          collide[j] = false;
           // console.error("NO LONGER COLLIDING");
         }
       }
