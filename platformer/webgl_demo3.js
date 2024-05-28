@@ -14,6 +14,7 @@ var onFloor = false;
 var hello;
 var xposVel = false;
 var xnegVel = false;
+var prevy = 0;
 
 function changeState() {
   if (animationOn) {
@@ -84,7 +85,7 @@ function main() {
     // console.log(event);
     switch (event.key) {
       case ' ':
-        yvel = -10;
+        yvel = -14;
         onFloor = false;
         break;
       case 'a':
@@ -139,6 +140,17 @@ function main() {
 
   var colorUniformLocation = gl.getUniformLocation(program, "u_color");
 
+  var square_arrays = [
+    200, 100, 200, 50,
+    400, 300, 75, 25,
+  ];
+  var colors = [
+    [Math.random(), Math.random(), Math.random(), 1],
+    [Math.random(), Math.random(), Math.random(), 1],
+  ];
+  var number_arrays = 2;
+  var collide = false;
+
 
 
   drawhere();
@@ -179,13 +191,8 @@ function main() {
     gl.vertexAttribPointer(
       positionAttributeLocation, size, type, normalize, stride, offset);
 
-    if (!isLines) {
-      setRectangle(gl, translations[0], translations[1], width, height);
-    } else {
-      setLinesRect(gl, translations[0], translations[1], width, height);
-    }
-    gl.uniform4fv(colorUniformLocation, color);
-
+    var offset = 0;
+    var count = (isLines ? 12 : 6);
     // draw
     var primitiveType;
     if (!isLines) {
@@ -193,9 +200,29 @@ function main() {
     } else {
       primitiveType = gl.LINES;
     }
-    var offset = 0;
-    var count = (isLines ? 12 : 6);
+    
+    for (var j = 0; j < number_arrays; j++) {
+      gl.uniform4fv(colorUniformLocation, colors[j]);
+      if (!isLines) {
+        setRectangle(gl, square_arrays[j*4], square_arrays[j*4 + 1], square_arrays[j*4 + 2], square_arrays[j*4 + 3]);
+      } else {
+        setLinesRect(gl, square_arrays[j*4], square_arrays[j*4 + 1], square_arrays[j*4 + 2], square_arrays[j*4 + 3]);
+      }
+      gl.drawArrays(primitiveType, offset, count);
+    }
+
+    if (!isLines) {
+      setRectangle(gl, translations[0], translations[1], width, height);
+    } else {
+      setLinesRect(gl, translations[0], translations[1], width, height);
+    }
+    gl.uniform4fv(colorUniformLocation, color);
+
+    
+    
     gl.drawArrays(primitiveType, offset, count);
+
+    
 
     if (animationOn) {
       update();
@@ -214,14 +241,44 @@ function main() {
       xvel = 10;
     }
 
+    var nextLowest = 500;
+    for (var j = 0; j < number_arrays; j++) {
+      var tx = Math.abs((square_arrays[j*4] + (square_arrays[j*4 + 2] / 2)) - (translations[0] + width/2))
+      var ty = Math.abs((square_arrays[j*4 + 1] + (square_arrays[j*4+3] / 2)) - (translations[1] + height/2));
+      var tx1 = square_arrays[j*4 + 2] / 2 + width / 2;
+      var ty1 = square_arrays[j*4 + 3] / 2 + height / 2;
+
+      if (tx < tx1 && ty < ty1 && prevy + height < square_arrays[j*4+1]) {
+        console.log("COLID__ ", j);
+        nextLowest = square_arrays[j*4+1] - 1;
+        collide = true;
+      } else {
+        // if (collide && tx > tx1) {
+        //   onFloor = false;
+        //   nextLowest = 500;
+        //   collide = false;
+        //   // console.error("NO LONGER COLLIDING");
+        // }
+        if (collide && (translations[0] + width < square_arrays[j*4] || translations[0] > square_arrays[j*4] + square_arrays[j*4 + 2] )) {
+          onFloor = false;
+          nextLowest = 500;
+          collide = false;
+          // console.error("NO LONGER COLLIDING");
+        }
+      }
+    }
+
+    prevy = translations[1];
+
     if (!onFloor) {
-      if (translations[1] + height < 501) {
+      if (translations[1] + height < nextLowest + 1) {
         yvel += 0.5;
         yvel *= 0.996;
         translations[1] += yvel;
       } else {
-        yvel *= -1
-        translations[1] = 500 - height;
+        yvel = 0;
+        translations[1] = nextLowest - height;
+        onFloor = true;
       }
     }
 
@@ -229,8 +286,6 @@ function main() {
       translations[0] += xvel;
     } else if (translations[0] < 500 - width && xvel > 0) {
       translations[0] += xvel;
-    } else {
-      xvel *= -1;
     }
     if (Math.abs(xvel) > 0.001) {
       xvel *= 0.85;
