@@ -222,7 +222,6 @@ function main() {
     
     gl.drawArrays(primitiveType, offset, count);
 
-    
 
     if (animationOn) {
       update();
@@ -248,15 +247,16 @@ function main() {
       var tx1 = square_arrays[j*4 + 2] / 2 + width / 2;
       var ty1 = square_arrays[j*4 + 3] / 2 + height / 2;
 
-      if (tx < tx1 && ty < ty1 && prevy + height < square_arrays[j*4+1]) {
+      if (tx < tx1 && ty < ty1 && prevy + height <= square_arrays[j*4+1]) {
         nextLowest = square_arrays[j*4+1];
         collide[j] = true;
+        onFloor = true;
+        translations[1] = nextLowest-height;
       } else {
         if (collide[j] && (tx1 <= tx)) {
           onFloor = false;
           nextLowest = 500;
           collide[j] = false;
-          // console.error("NO LONGER COLLIDING");
         }
       }
     }
