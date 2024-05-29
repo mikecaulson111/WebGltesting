@@ -85,8 +85,10 @@ function main() {
     // console.log(event);
     switch (event.key) {
       case ' ':
-        yvel = -14;
-        onFloor = false;
+        if (onFloor) {
+          yvel = -14;
+          onFloor = false;
+        }
         break;
       case 'a':
       case 'A':
@@ -142,14 +144,16 @@ function main() {
 
   var square_arrays = [
     200, 100, 200, 50,
-    400, 300, 75, 25,
+    400, 375, 75, 25,
+    20, 200, 50, 50,
   ];
   var colors = [
     [Math.random(), Math.random(), Math.random(), 1],
     [Math.random(), Math.random(), Math.random(), 1],
+    [Math.random(), Math.random(), Math.random(), 1],
   ];
-  var number_arrays = 2;
-  var collide = [false, false];
+  var number_arrays = 3;
+  var collide = [false, false, false];
 
 
 
@@ -204,23 +208,28 @@ function main() {
     for (var j = 0; j < number_arrays; j++) {
       gl.uniform4fv(colorUniformLocation, colors[j]);
       if (!isLines) {
-        setRectangle(gl, square_arrays[j*4], square_arrays[j*4 + 1], square_arrays[j*4 + 2], square_arrays[j*4 + 3]);
+        setRectangle(gl, square_arrays[j*4], 500 -250 +square_arrays[j*4 + 1] - translations[1], square_arrays[j*4 + 2], square_arrays[j*4 + 3]);
       } else {
-        setLinesRect(gl, square_arrays[j*4], square_arrays[j*4 + 1], square_arrays[j*4 + 2], square_arrays[j*4 + 3]);
+        setLinesRect(gl, square_arrays[j*4], 500 -250 +square_arrays[j*4 + 1] - translations[1], square_arrays[j*4 + 2], square_arrays[j*4 + 3]);
       }
       gl.drawArrays(primitiveType, offset, count);
     }
 
     if (!isLines) {
-      setRectangle(gl, translations[0], translations[1], width, height);
+      setRectangle(gl, translations[0], 500-250, width, height);
     } else {
       setLinesRect(gl, translations[0], translations[1], width, height);
     }
     gl.uniform4fv(colorUniformLocation, color);
-
-    
     
     gl.drawArrays(primitiveType, offset, count);
+
+    // This is the bottom line of the level to show theyre at the bottom
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+      0, 750 - translations[1],
+      500,750 - translations[1],
+    ]), gl.STATIC_DRAW);
+    gl.drawArrays(gl.LINES, 0, 2);
 
 
     if (animationOn) {
@@ -251,6 +260,7 @@ function main() {
         nextLowest = square_arrays[j*4+1];
         collide[j] = true;
         onFloor = true;
+        yvel = 0;
         translations[1] = nextLowest-height;
       } else {
         if (collide[j] && (tx1 <= tx)) {
