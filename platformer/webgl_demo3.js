@@ -169,8 +169,11 @@ function main() {
     // Tell WebGL how to convert from clip space to pixels
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
 
+    var clear_color = yvel / 300;
+    var clear_color2 =  (yvel < 15 ? (500 - width - translations[1]) / 30000 : 0);
+
     // Clear the canvas
-    gl.clearColor(0, 0, 0, 1);
+    gl.clearColor(clear_color, clear_color2 / 2, clear_color2, 1);
     gl.clear(gl.COLOR_BUFFER_BIT);
 
     // Tell it to use our program (pair of shaders)
@@ -239,6 +242,7 @@ function main() {
     }
   }
 
+
   function update() {
     var i = 0;
 
@@ -257,6 +261,12 @@ function main() {
       var ty1 = square_arrays[j*4 + 3] / 2 + height / 2;
 
       if (tx < tx1 && ty < ty1 && prevy + height <= square_arrays[j*4+1]) {
+        nextLowest = square_arrays[j*4+1];
+        collide[j] = true;
+        onFloor = true;
+        yvel = 0;
+        translations[1] = nextLowest-height;
+      } else if (prevy + height < square_arrays[j*4 + 1] && translations[1] > square_arrays[j*4+1] && tx < tx1) {
         nextLowest = square_arrays[j*4+1];
         collide[j] = true;
         onFloor = true;
