@@ -3,9 +3,9 @@
 
 var animationOn = true;
 var isLines = false;
-var translations = [0, 0];
 var width = 100;
 var height = 50;
+var translations = [500/2 - width / 2, 450];
 var color = [Math.random(), Math.random(), Math.random(), 1];
 var yvel = 0;
 var xvel = 1.5;
@@ -14,7 +14,7 @@ var onFloor = false;
 var hello;
 var xposVel = false;
 var xnegVel = false;
-var prevy = 0;
+var prevy = translations[1];
 
 function changeState() {
   if (animationOn) {
@@ -146,14 +146,16 @@ function main() {
     200, 100, 200, 50,
     400, 375, 75, 25,
     20, 200, 50, 50,
+    400, -70, 75, 20,
   ];
   var colors = [
     [Math.random(), Math.random(), Math.random(), 1],
     [Math.random(), Math.random(), Math.random(), 1],
     [Math.random(), Math.random(), Math.random(), 1],
+    [Math.random(), Math.random(), Math.random(), 1],
   ];
-  var number_arrays = 3;
-  var collide = [false, false, false];
+  var number_arrays = 4;
+  var collide = [false, false, false, false];
 
 
 
