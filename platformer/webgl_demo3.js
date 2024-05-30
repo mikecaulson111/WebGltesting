@@ -15,6 +15,7 @@ var hello;
 var xposVel = false;
 var xnegVel = false;
 var prevy = translations[1];
+var hardMode = false;
 
 function changeState() {
   if (animationOn) {
@@ -37,6 +38,10 @@ function jump() {
   yvel = -30;
   onFloor = false;
   num_below_num = 0;
+}
+
+function changeHardMode() {
+  hardMode = !hardMode;
 }
 
 function createShader(gl, type, source) {
@@ -157,6 +162,28 @@ function main() {
   var number_arrays = 4;
   var collide = [false, false, false, false];
 
+  var prv = -70;
+  function getRandomInt(min, max) {
+    return Math.floor(Math.random() * (max - min) + min);
+  }
+
+  for (var i = 0; i < 200; i++) {
+    var temp1 = Math.floor(getRandomInt(50,170)); // top
+    var temp2 = Math.floor(getRandomInt(width - 5, 450 - width)); // left
+    var temp3 = Math.floor(getRandomInt(20, 80)); // width
+    var temp4 = Math.floor(getRandomInt(4,25)); // height
+    square_arrays.push(temp2);
+    square_arrays.push(prv - temp1);
+    square_arrays.push((500 - temp2 + temp3 > width ? temp3 : 500 - width - 15));
+    square_arrays.push(5 + temp4);
+    var temp5 = [Math.random(), Math.random(), Math.random(), 1];
+    colors.push(temp5);
+    collide.push(false);
+    number_arrays += 1;
+    prv = prv - temp1;
+  }
+
+
 
 
   drawhere();
@@ -211,13 +238,18 @@ function main() {
     }
     
     for (var j = 0; j < number_arrays; j++) {
-      gl.uniform4fv(colorUniformLocation, colors[j]);
-      if (!isLines) {
-        setRectangle(gl, square_arrays[j*4], 500 -250 +square_arrays[j*4 + 1] - translations[1], square_arrays[j*4 + 2], square_arrays[j*4 + 3]);
-      } else {
-        setLinesRect(gl, square_arrays[j*4], 500 -250 +square_arrays[j*4 + 1] - translations[1], square_arrays[j*4 + 2], square_arrays[j*4 + 3]);
+      var size = (hardMode ? 170 : 550);
+      if (Math.abs(square_arrays[j*4 + 1] - translations[1]) < size) {
+         gl.uniform4fv(colorUniformLocation, colors[j]);
+         if (!isLines) {
+          setRectangle(gl, square_arrays[j*4], 500 -250 +square_arrays[j*4 + 1] - translations[1], square_arrays[j*4 + 2], square_arrays[j*4 + 3]);
+         } else {
+          setLinesRect(gl, square_arrays[j*4], 500 -250 +square_arrays[j*4 + 1] - translations[1], square_arrays[j*4 + 2], square_arrays[j*4 + 3]);
+         }
+         gl.drawArrays(primitiveType, offset, count);
+      } else if (translations[1] - square_arrays[j*4 + 1] > 2 * size) {
+        break;
       }
-      gl.drawArrays(primitiveType, offset, count);
     }
 
     if (!isLines) {
