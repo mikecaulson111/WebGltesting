@@ -1,8 +1,16 @@
 body {
   margin: 0;
+  text-align: center;
+}
+h1 {
+  text-align: center;
 }
  canvas {
-  width: 500vw;
-  height: 500vh;
+  width: 20vw;
+  height: 40vh;
   display: block;
+  padding-left: 0;
+  padding-right: 0;
+  margin-left: auto;
+  margin-right: auto;
 }

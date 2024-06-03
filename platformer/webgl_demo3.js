@@ -255,7 +255,7 @@ function main() {
     if (!isLines) {
       setRectangle(gl, translations[0], 500-250, width, height);
     } else {
-      setLinesRect(gl, translations[0], translations[1], width, height);
+      setLinesRect(gl, translations[0], 500-250, width, height);
     }
     gl.uniform4fv(colorUniformLocation, color);
     
